@@ -51,7 +51,6 @@ def parse_to_graph(cfg_files, key='use', directives=['\S*']):
     lists_re = re.compile(lists_pat)
 
     for f in cfg_files:
-        #print(f)
         directives = {}
         with open(f, 'r') as cfg_file:
             for line in map(string.strip, cfg_file.readlines()):
@@ -62,23 +61,18 @@ def parse_to_graph(cfg_files, key='use', directives=['\S*']):
                 if match_obj_type:
                     motgd = match_obj_type.groupdict()
                     directives['__obj_type'] = motgd['obj_type']
-                    print(motgd)
                     continue
 
                 if re.search(end_curly_re, line):
 
                     directives['__filename'] = f
                     collection_key = directives.get(key, f)
-                    print(collection_key)
                     if type(collection_key) is list and all(map(lambda x: isinstance(x, str), collection_key)):
-                        print('here1')
                         for kc in collection_key:
                             graphdd[kc].append(directives)
                     elif isinstance(collection_key, str):
-                        print('here2')
                         graphdd[collection_key].append(directives)
                     else:
-                        print('here3')
                         print_stderr('cannot use collection_key: {0}'.format(collection_key))
 
                     directives = {}
@@ -130,16 +124,12 @@ def main():
         for root, dirs, files in walk(cfg_dir):
             for filepath in map(lambda x: op.join(root, x), files):
                 if filepath.endswith('.cfg'):
-                    print(filepath)
                     cfg_files.append(filepath)
                 else:
                     print_stderr('skipping {0}'.format(filepath))
         cfg_files.sort()
 
-    #graph = parse_to_graph(cfg_files, directives=['use', 'name', 'host_name'])
     graph = parse_to_graph(cfg_files, key=args.key)
-    #graph = parse_to_graph(cfg_files)
-    print('\n\n==========\n\n')
     pprint(graph)
 
 
