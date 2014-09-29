@@ -47,7 +47,7 @@ def parse_to_graph(cfg_files, key='use', directives=['\S*']):
     start_curly_re = re.compile(start_curly_pat)
     end_curly_pat = r'}'
     end_curly_re = re.compile(end_curly_pat)
-    lists_pat = r'_host_name_aliases|contact_groups|hostgroup_name|hostgroups|members|parents'
+    lists_pat = r'_host_name_aliases|contact_groups|hostgroup_name|hostgroups|members|parents|use'
     lists_re = re.compile(lists_pat)
 
     for f in cfg_files:
