@@ -96,6 +96,8 @@ def main():
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('nagios_cfg_file', metavar='CFG',
                         help='Nagios configuration file')
+    parser.add_argument('-dh', '--detail-host',
+                        help='provide inheritance detail for a specific host')
     parser.add_argument('-k', '--key', default='use',
                         help='the key (directive) for association, default: "use"')
     parser.add_argument('-m', '--merge', metavar='PATH',
@@ -131,6 +133,30 @@ def main():
 
     graph = parse_to_graph(cfg_files, key=args.key)
     pprint(graph)
+
+    if args.detail_host:
+        host_graph = parse_to_graph(cfg_files, key='host_name')
+        name_graph = parse_to_graph(cfg_files, key='name')
+        obj = host_graph.get(args.detail_host, None)
+
+        def drill_down(obj, name_graph):
+            inheritance_order = []
+            if obj is not None:
+                obj = obj[0]
+                inheritance_order.append(obj.get('name', ''))
+                for parent in obj.get('use', []):
+                    i_o = drill_down(name_graph.get(parent, None), name_graph)
+                    inheritance_order.extend(i_o)
+            return inheritance_order
+
+        inheritance_order = drill_down(obj, name_graph)
+        for parent in inheritance_order:
+            if parent is '' or parent is '+':
+                continue
+            parent_obj = name_graph.get(parent, [{}])
+            parent_obj[0].update(obj[0])
+            obj = parent_obj
+        pprint(obj)
 
 
 if __name__ == '__main__':
