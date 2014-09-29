@@ -98,8 +98,8 @@ def main():
                         help='Nagios configuration file')
     parser.add_argument('-dh', '--detail-host',
                         help='provide inheritance detail for a specific host')
-    parser.add_argument('-k', '--key', default='use',
-                        help='the key (directive) for association, default: "use"')
+    parser.add_argument('-k', '--key',
+                        help='the key (directive) for association')
     parser.add_argument('-m', '--merge', metavar='PATH',
                         help='merge absolute path of cfg_dirs into parent' + \
                         'directory of the Nagios configuration file\'s path')
@@ -131,8 +131,10 @@ def main():
                     print_stderr('skipping {0}'.format(filepath))
         cfg_files.sort()
 
-    graph = parse_to_graph(cfg_files, key=args.key)
-    pprint(graph)
+    if args.key:
+        graph = parse_to_graph(cfg_files, key=args.key)
+        print('\n*** organized by key ***')
+        pprint(graph)
 
     if args.detail_host:
         host_graph = parse_to_graph(cfg_files, key='host_name')
@@ -156,6 +158,7 @@ def main():
             parent_obj = name_graph.get(parent, [{}])
             parent_obj[0].update(obj[0])
             obj = parent_obj
+        print('\n*** host inheritance detail for {0} ***'.format(args.detail_host))
         pprint(obj)
 
 
