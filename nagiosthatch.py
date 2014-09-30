@@ -96,7 +96,7 @@ def main():
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('nagios_cfg_file', metavar='CFG',
                         help='Nagios configuration file')
-    parser.add_argument('-dh', '--detail-host',
+    parser.add_argument('-dh', '--detail-host', metavar='HOST',
                         help='provide inheritance detail for a specific host')
     parser.add_argument('-k', '--key',
                         help='the key (directive) for association')
