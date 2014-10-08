@@ -35,7 +35,7 @@ def merge_paths(path, new_pardir='.', merge='.'):
     stripped_path = op.relpath(path, start=merge)
     return op.join(new_pardir, stripped_path)
 
-def parse_to_graph(cfg_files, key='use', directives=['\S*']):
+def parse_to_graph(cfg_files, key='use', directives=['\S*'], strict_key=False):
     graphdd = defaultdict(list)
 
     directive_pat_tmpl = r'^\s*(?P<directive>{0})\s*(?P<value>[^;]+)\s*'
@@ -67,6 +67,9 @@ def parse_to_graph(cfg_files, key='use', directives=['\S*']):
 
                     directives['__filename'] = f
                     collection_key = directives.get(key, f)
+                    if strict_key and collection_key is f:
+                        continue
+
                     if type(collection_key) is list and all(map(lambda x: isinstance(x, str), collection_key)):
                         for kc in collection_key:
                             graphdd[kc].append(directives)
@@ -100,6 +103,8 @@ def main():
                         help='provide inheritance detail for a specific host')
     parser.add_argument('-k', '--key',
                         help='the key (directive) for association')
+    parser.add_argument('-sk', '--strict-key', action='store_true',
+                        help='the key (directive) must be in the object')
     parser.add_argument('-m', '--merge', metavar='PATH',
                         help='merge absolute path of cfg_dirs into parent' + \
                         'directory of the Nagios configuration file\'s path')
@@ -132,7 +137,8 @@ def main():
         cfg_files.sort()
 
     if args.key:
-        graph = parse_to_graph(cfg_files, key=args.key)
+        graph = parse_to_graph(cfg_files, key=args.key,
+                               strict_key=args.strict_key)
         print('\n*** organized by key ***')
         pprint(graph)
 
