@@ -85,10 +85,13 @@ def parse_to_graph(cfg_files, key='use', directives=['\S*'], strict_key=False):
                     match = directive_re.match(line)
                     if match:
                         mgd = match.groupdict()
-                        if re.search(lists_re, mgd['directive']):
-                            directives[mgd['directive'].strip()] = re.split(r'\s*,\s*|\s*\t\s*|\s*', mgd['value'])
+                        drctv = mgd['directive'].strip()
+                        vl = mgd['value'].strip()
+                        if re.search(lists_re, drctv):
+                            directives[drctv] = re.split(r'(\+)|\s*,\s*|\s*', vl)
+                            directives[drctv] = filter(lambda x: bool(x), directives[drctv])
                         else:
-                            directives[mgd['directive'].strip()] = mgd['value'].strip()
+                            directives[drctv] = vl
                         continue
 
     return dict(graphdd)
